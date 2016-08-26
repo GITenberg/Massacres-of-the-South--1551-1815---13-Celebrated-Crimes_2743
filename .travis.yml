@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: AIA+4GAOj1aRxswRKdlkM3Tl8pOCRYSV1PddOlutMvf2/xoI+weE0QWYk2NpJeJeKhcWg52YGc3uiixQyD8bWedqFDcLkC+YgE515Wu7FJGoFHnyWuVoKSXkxrp6+isXSiCHNToJ5iSawLaJagCt9EYKq9F3BVmUuae4iuM5d7NvMFshROu86EC0fZ1kQydt6x6vhTWTEJERWnCRlppph0/j8KLW0S38FDcgE0EOoNxfoRJFg6YTtKyl4x/5LRSIRzVPtC5L2xbi4/9V5IdZdwXJQPaHMVzytGbVOeTYwcHdwXJEtqc0auW05Xu31c4lH0tBEUXc0eZZAZiB1GJMt5tpgN18DTg5J5jWTKXt+7AzGu9YgudhmmNB/vxtcDY4M5SOQxSoqN0HZ3fN8J8RzgZYTN1of0MCx7zOtJIuuzCMj/KAqMxdsNwuZaCzZfUqeBFcWXxvfN1/N2LDErdULQwAkHb82hzB4laLW3q57H1EPoHL+EZHzRZfDiQWKKesuX16MFM7M4qGqjHHZaL4/DWn9JbMEXsqLECk7w7yDfu+YX6uaPBfLwSJPHBK0CG+BNtQPWnhz4AfdJyO4SVZdDeJm98iiWrMa4RDPD8wFm0+igdZiVB29GTSbZFQ7TK8f6wvBstNC4ycAdEpqKn2OZ8DrmkSb2pAOr/zDYF5370=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Massacres-of-the-South--1551-1815---13-Celebrated-Crimes_2743
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
